@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/GabrielKraus/D-Leser#readme",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "nodemon": "^2.0.16"
   }
 }

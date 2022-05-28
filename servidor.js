@@ -10,5 +10,5 @@ const server = app.listen(PORT, () => {
 server.on("error", error => console.log(`Error en servidor ${error}`))
 
 app.get('/', (req, res) => {
-    res.send({ mensaje: 'hola mundo' })
+    res.send("<h1>Bienbenidos al servidor express</h1>")
 })
