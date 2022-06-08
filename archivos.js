@@ -91,12 +91,12 @@ class Contenedor {
     }
 }
 let archivo = new Contenedor("productos.txt");
-const producto = {
-    title: "producto",
-    price: 200,
-    thumbnail: "https://as01.epimg.net/meristation/imagenes/2022/05/19/noticias/1652944408_523527_1652944740_noticia_normal.jpg",
-};
-archivo.save(producto).then()
+// const producto = {
+//     title: "producto",
+//     price: 200,
+//     thumbnail: "https://as01.epimg.net/meristation/imagenes/2022/05/19/noticias/1652944408_523527_1652944740_noticia_normal.jpg",
+// };
+// archivo.save(producto).then()
 
 app.get('/', (req, res) => {
     res.send("<a href='/productos'>Ver todos los productos</a> <br> <a href='/productoRandom'>ver un producto aleatorio</a>")
