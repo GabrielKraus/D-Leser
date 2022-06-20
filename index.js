@@ -1,26 +1,25 @@
 const express = require("express");
 const { Router } = express;
 
-
-
 const app = express();
 const router = express.Router();
-app.use(express.json());
-
-app.use('/api/productos', router);
-
 router.use(express.json())
+router.use(express.urlencoded({extended: true}))
 
+app.use(express.json());
+app.use('/api/productos', router);
+app.use(express.static("public"))
+app.use(express.urlencoded({extended: true}))
 
 const productos = [{
         title: "Libro1",
         price: 150,
-        thumbnail: "(url al logo o foto del producto)",
+        thumbnail: "foto",
         id: 1
     },{
         title: "Libro2",
         price: 250,
-        thumbnail: "(url al logo o foto del producto)",
+        thumbnail: "foto",
         id: 2
     }
 ];
@@ -45,7 +44,7 @@ router.get("/:id", (req, res)=>{
 router.post("/", (req, res)=>{
     newProduct = {...req.body, id: productos.length+1}
     productos.push(newProduct)
-    res.json(productos)
+    res.json(newProduct)
 })
 
 

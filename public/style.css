@@ -1,0 +1,29 @@
+body{
+    background-color: rgb(61, 61, 61);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+form{
+    background-color: black;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin-top: 50px;
+    border-radius: 20px;
+}
+input{
+    border: none;
+    background-color: rgb(61, 61, 61);
+    border-bottom:solid 2px rgb(0, 255, 0);
+    margin-bottom: 10px;
+    color: white;
+}
+button{
+    margin-top: 10px;
+    width: 80%;
+    align-self: center;
+    border-radius: 5px;
+    background-color: rgba(0, 255, 0, 0.541)
+}
