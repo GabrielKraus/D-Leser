@@ -102,13 +102,21 @@ app.get('/', (req, res) => {
     res.send("<a href='/productos'>Ver todos los productos</a> <br> <a href='/productoRandom'>ver un producto aleatorio</a>")
 })
 
-let allProducts = []
-archivo.getAll().then(res=>  allProducts = res )
 
-app.get('/productos', (req, res) => {
-    res.send( allProducts )
+
+// let allProducts = []
+// archivo.getAll().then(res=>  allProducts = res )
+
+
+app.get('/productos', async (req, res) => {
+    const productos = await archivo.getAll()
+    res.send(productos)
 })
-app.get('/productoRandom', (req, res) => {
-    res.send( allProducts[Math.floor(Math.random() * (allProducts.length))] )
+
+
+
+app.get('/productoRandom', async (req, res) => {
+    const productos = await archivo.getAll()
+    res.send( productos[Math.floor(Math.random() * (productos.length))] )
 })
 
