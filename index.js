@@ -11,6 +11,16 @@ app.use('/api/productos', router);
 app.use(express.static("public"))
 app.use(express.urlencoded({extended: true}))
 
+
+class Product {
+    constructor(title, price, thumbnail, id){
+        this.title = title,
+        this.price = price,
+        this.thumbnail = thumbnail,
+        this.id = id
+    }
+}
+
 const productos = [{
         title: "Libro1",
         price: 150,
@@ -42,7 +52,7 @@ router.get("/:id", (req, res)=>{
 })
 
 router.post("/", (req, res)=>{
-    newProduct = {...req.body, id: productos.length+1}
+    newProduct = new Product(req.body.title, req.body.price, req.body.thumbnail, productos.length+1)
     productos.push(newProduct)
     res.json(newProduct)
 })
