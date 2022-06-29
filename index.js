@@ -1,14 +1,29 @@
 const express = require("express");
 const { Router } = express;
-
+const handlebars = require('express-handlebars');
 const app = express();
 const router = express.Router();
+
+app.engine('hbs',
+    handlebars.engine({
+        extname: '.hbs',
+        defaultLayout: 'index.hbs',
+        layoutsDir: __dirname +  '/views/layouts',
+        partialsDir: __dirname + '/views/partial/'
+    })
+)
+
+app.set('view engine', 'hbs');
+app.set('views', './views');
+
+app.use(express.static("public"))
+
+
 router.use(express.json())
 router.use(express.urlencoded({extended: true}))
 
 app.use(express.json());
 app.use('/api/productos', router);
-app.use(express.static("public"))
 app.use(express.urlencoded({extended: true}))
 
 
@@ -36,7 +51,7 @@ const productos = [{
 
 
 router.get("/", (req, res)=>{
-    res.json(productos)
+    res.render('datos', {productos: productos, listExist: true})
 })
 
 router.get("/:id", (req, res)=>{
