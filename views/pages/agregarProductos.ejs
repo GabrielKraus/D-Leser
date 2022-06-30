@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+</head>
+
+<body class="container">
+    <header>
+        <%- include('../partials/header.ejs') %>
+    </header>
+    <main>
+        <form action="/api/productos" method="post">
+            Nombre del Producto: <input type="text" name="title">
+            Precio: <input type="number" name="price">
+            Foto(Url): <input type="text" name="thumbnail">
+            <button>Enviar</button>
+        </form>
+
+    </main>
+</body>
+
+</html>

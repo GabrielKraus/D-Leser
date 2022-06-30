@@ -11,6 +11,10 @@ app.use('/api/productos', router);
 app.use(express.static("public"))
 app.use(express.urlencoded({extended: true}))
 
+app.set("views", "./views");
+app.set('view engine', 'ejs')
+
+
 
 class Product {
     constructor(title, price, thumbnail, id){
@@ -36,43 +40,23 @@ const productos = [{
 
 
 router.get("/", (req, res)=>{
-    res.json(productos)
+    res.render("pages/verProductos", {
+        productos: productos
+    })
 })
-
-router.get("/:id", (req, res)=>{
-    let id = parseInt(req.params.id)
-    let producto = productos.find(producto => producto.id == id)
-    if(producto != null){
-        res.json(
-            producto
-        )
-    }else{
-        res.send({error: `no existe el producto con el id ${id}`})
-    }
+router.get("/agregar", (req, res)=>{
+    res.render("pages/agregarProductos", {
+        productos: productos
+    })
 })
 
 router.post("/", (req, res)=>{
     newProduct = new Product(req.body.title, req.body.price, req.body.thumbnail, productos.length+1)
     productos.push(newProduct)
-    res.json(newProduct)
+    res.render("pages/verProductos", {
+        productos: productos
+    })
 })
-
-
-router.put("/:id", (req, res)=>{
-    let id = parseInt(req.params.id)
-
-    let producto = req.body;
-    let productoEncontrado = productos.find(producto => producto.id === id);
-
-    productoEncontrado.nombre = producto.nombre;
-    productoEncontrado.precio = producto.precio;
-
-    productos[productos.indexOf(productoEncontrado)] = {...producto, id: productoEncontrado.id}
-    res.json(
-        {productos}
-    )
-})
-
 
 router.delete("/:id", (req, res)=>{
     let productId = parseInt(req.params.id)

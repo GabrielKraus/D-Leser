@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+</head>
+
+<body class="container">
+    <header>
+        <%- include('../partials/header.ejs') %>
+    </header>
+    <main>
+        <ul>
+            <!--lista de mascotas con un bucle for-->
+            <% productos.forEach((producto)=>{ %>
+                <li><%= producto.title %></li>
+                <li><%= producto.price %></li>
+                <li><%= producto.thumbnail %></li>
+                <li><%= producto.id %></li>
+                ----------------------------
+                <% }) %>
+                
+        </ul>
+
+    </main>
+</body>
+
+</html>
