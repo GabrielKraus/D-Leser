@@ -1,5 +1,9 @@
 html
     body
+        li
+            a(href="/api/productos") Ver Productos 
+        li 
+            a(href="/api/productos/agregar") Agregar Productos 
         ul
         each val, i in productos
             li=productos[i].title

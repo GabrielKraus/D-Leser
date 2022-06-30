@@ -37,49 +37,17 @@ const productos = [{
     }
 ];
 
-app.get('/productos', (req, res)  => {
-
+router.get('/', (req, res)  => {
     res.render('productos', {productos: productos})
 })
-
-
-
-router.get("/", (req, res)=>{
-    res.json(productos)
-})
-
-router.get("/:id", (req, res)=>{
-    let id = parseInt(req.params.id)
-    let producto = productos.find(producto => producto.id == id)
-    if(producto != null){
-        res.json(
-            producto
-        )
-    }else{
-        res.send({error: `no existe el producto con el id ${id}`})
-    }
+router.get('/agregar', (req, res)  => {
+    res.render('agregarProducto', {productos: productos})
 })
 
 router.post("/", (req, res)=>{
     newProduct = new Product(req.body.title, req.body.price, req.body.thumbnail, productos.length+1)
     productos.push(newProduct)
-    res.json(newProduct)
-})
-
-
-router.put("/:id", (req, res)=>{
-    let id = parseInt(req.params.id)
-
-    let producto = req.body;
-    let productoEncontrado = productos.find(producto => producto.id === id);
-
-    productoEncontrado.nombre = producto.nombre;
-    productoEncontrado.precio = producto.precio;
-
-    productos[productos.indexOf(productoEncontrado)] = {...producto, id: productoEncontrado.id}
-    res.json(
-        {productos}
-    )
+    res.render('productos', {productos: productos})
 })
 
 

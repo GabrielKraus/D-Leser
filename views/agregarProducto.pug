@@ -1,0 +1,15 @@
+html
+    body
+        li
+            a(href="/api/productos") Ver Productos 
+        li 
+            a(href="/api/productos/agregar") Agregar Productos 
+        ul
+        form(action='/api/productos' method='post')
+            | Nombre del Producto: 
+            input(type='text' name='title')
+            |         Precio: 
+            input(type='number' name='price')
+            |         Foto(Url): 
+            input(type='text' name='thumbnail')
+            button Enviar
