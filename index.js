@@ -6,6 +6,9 @@ const router = express.Router();
 router.use(express.json())
 router.use(express.urlencoded({extended: true}))
 
+app.set('views', './views')
+app.set('view engine', 'pug')
+
 app.use(express.json());
 app.use('/api/productos', router);
 app.use(express.static("public"))
@@ -33,6 +36,12 @@ const productos = [{
         id: 2
     }
 ];
+
+app.get('/productos', (req, res)  => {
+
+    res.render('productos', {productos: productos})
+})
+
 
 
 router.get("/", (req, res)=>{
