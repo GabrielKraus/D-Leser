@@ -1,8 +1,26 @@
 {
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "socket.io": "^4.5.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"
-  }
+  },
+  "name": "d-leser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielKraus/D-Leser.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GabrielKraus/D-Leser/issues"
+  },
+  "homepage": "https://github.com/GabrielKraus/D-Leser#readme",
+  "description": ""
 }
