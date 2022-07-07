@@ -1,5 +1,5 @@
-
 const socket = io();
+
 
 function makeHTML(mensajes) {
     return mensajes
@@ -27,8 +27,8 @@ function makeProductHTML(productos) {
             return `<div>
                 <strong>Title: ${elem.title}</strong><br>
                 <em>Price: ${elem.price}</em><br>
-                <em>Title: ${elem.thumbnail}</em><br>
-                <em>Title: ${elem.id}</em><br>
+                <em>Thumbnail: ${elem.thumbnail}</em><br>
+                <em>Id: ${elem.id}</em><br>
                 </div>`;
         })
         .join(" ");

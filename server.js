@@ -16,6 +16,10 @@ app.use('/api/productos', router);
 app.use(express.static("public"))
 app.use(express.urlencoded({ extended: true }))
 
+app.set("views", "./public");
+app.set('view engine', 'ejs')
+
+
 
 class Product {
     constructor(title, price, thumbnail, id) {
@@ -40,7 +44,7 @@ const productos = [{
 ];
 
 app.get("/", (req, res) => {
-    res.sendFile('index.html', { root: __dirname })
+    res.render("pages/index")
 })
 
 
@@ -65,7 +69,7 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
     newProduct = new Product(req.body.title, req.body.price, req.body.thumbnail, productos.length + 1)
     productos.push(newProduct)
-    res.json(newProduct)
+    res.redirect("/")
 })
 
 
@@ -101,6 +105,7 @@ io.on("connection", (socket) => {
     console.log("Nuevo cliente conectado!");
 
     socket.emit("productos", productos)
+
 
     socket.emit("mensajes", mensajes);
 
