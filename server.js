@@ -18,7 +18,7 @@ app.use('/api/carrito', routerCarritos);
 app.use(express.static("public"))
 app.use(express.urlencoded({ extended: true }))
 
-let administrador = true
+let administrador = false
 //#region Productos
 routerProductos.get("/", (req, resPost) => {
     fs.readFile("./productos.txt", 'utf8', (err, data) => {
@@ -45,8 +45,8 @@ routerProductos.get("/:id", (req, res) => {
 
 
 
-if(administrador){
-    routerProductos.post("/", (req, res) => {
+routerProductos.post("/", (req, res) => {
+    if(administrador){
         fs.readFile("./productos.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -71,11 +71,15 @@ if(administrador){
                 res.json(newProduct)
             });
         });
-    })
-    
-    
-    routerProductos.put("/:id", (req, res) => {
-        let id = parseInt(req.params.id)
+    }else{
+        res.json({error: `-1, descripcion ruta /api/productos metodo POST no autorizada`})
+    }
+})
+
+
+routerProductos.put("/:id", (req, res) => {
+    let id = parseInt(req.params.id)
+    if(administrador){
         fs.readFile("./productos.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -100,15 +104,19 @@ if(administrador){
                 res.json(productos)
             });
         });
+    }else{
+        res.json({error: `-1, descripcion ruta /api/productos/${id} metodo PUT no autorizada`})
+    }
+
     
-        
-        
-    })
     
-    
-    routerProductos.delete("/:id", (req, res) => {
-        let id = parseInt(req.params.id)
-    
+})
+
+
+routerProductos.delete("/:id", (req, res) => {
+    let id = parseInt(req.params.id)
+
+    if(administrador){
         fs.readFile("./productos.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -125,8 +133,11 @@ if(administrador){
                 res.json(productos)
             });
         });
-    })
-}
+    }else{
+        res.json({error: `-1, descripcion ruta /api/productos/${id} metodo DELETE no autorizada`})
+    }
+})
+
 
 
 
@@ -160,8 +171,8 @@ routerCarritos.get("/:id", (req, res) => {
 
 
 
-if (administrador){
-    routerCarritos.post("/", (req, res) => {
+routerCarritos.post("/", (req, res) => {
+    if(administrador){
         fs.readFile("./carrito.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -180,11 +191,15 @@ if (administrador){
                 res.json(newCarrito)
             });
         });
-    })
-    
-    
-    routerCarritos.put("/:id", (req, res) => {
-        let id = parseInt(req.params.id)
+    }else{
+        res.json({error: `-1, descripcion ruta /api/carrito metodo POST no autorizada`})
+    }
+})
+
+
+routerCarritos.put("/:id", (req, res) => {
+    let id = parseInt(req.params.id)
+    if (administrador) {
         fs.readFile("./carrito.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -204,12 +219,16 @@ if (administrador){
                 res.json(carritos)
             });
         });
-    })
-    
-    
-    routerCarritos.delete("/:id", (req, res) => {
-        let id = parseInt(req.params.id)
-    
+    }else{
+        res.json({error: `-1, descripcion ruta /api/carrito/${id} metodo PUT no autorizada`})
+    }
+})
+
+
+routerCarritos.delete("/:id", (req, res) => {
+    let id = parseInt(req.params.id)
+
+    if(administrador){
         fs.readFile("./carrito.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -226,12 +245,15 @@ if (administrador){
                 res.json(carritos)
             });
         });
-    })
+    }else{
+        res.json({error: `-1, descripcion ruta /api/carrito/${id} metodo DELETE no autorizada`})
+    }
+})
 
-    routerCarritos.delete("/:id/productos/:id_prod", (req, res) => {
-        let id = parseInt(req.params.id)
-        let idProd = parseInt(req.params.id_prod)
-    
+routerCarritos.delete("/:id/productos/:id_prod", (req, res) => {
+    let id = parseInt(req.params.id)
+    let idProd = parseInt(req.params.id_prod) 
+    if (administrador) {
         fs.readFile("./carrito.txt", 'utf8', (err, data) => {
             if (err) {
                 console.log("error")
@@ -240,12 +262,7 @@ if (administrador){
             let carrito = carritos.find(carrito => carrito.id == id)
             let productos = carrito.productos
             let producto =  productos.find(producto => producto.id == idProd)
-
-    
             productos.splice(productos.indexOf(producto), 1)
-
-
-    
             fs.writeFile("./carrito.txt", JSON.stringify(carritos, null, 2), err => {
                 if (err) {
                     console.error(err);
@@ -253,8 +270,11 @@ if (administrador){
                 res.json(carritos)
             });
         });
-    })
-}
+    }else{
+        res.json({error: `-1, descripcion ruta /api/carrito/${id}/productos/${idProd} metodo DELETE no autorizada`})
+    }
+})
+
 //#endregion
 
 
