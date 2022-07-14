@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "title": "peli2",
+    "price": 120,
+    "thumbnail": "req.body.thumbnail",
+    "timeStamp": "14/7/2022 00:31:56",
+    "id": 0
+  }
+]
