@@ -53,7 +53,7 @@ routerProductos.post("/", (req, res) => {
             }
             productos = JSON.parse(data)
             const newProduct = {
-                id: productos.length,
+                id: productos.length+1,
                 timeStamp: new Date(Date.now()).toLocaleString(),
                 title: req.body.title,
                 description: req.body.description,
@@ -179,7 +179,7 @@ routerCarritos.post("/", (req, res) => {
             }
             carritos = JSON.parse(data)
             const newCarrito = {
-                id: carritos.length,
+                id: carritos.length+1,
                 timeStamp: new Date(Date.now()).toLocaleString(),
                 productos: req.body.productos
             };
