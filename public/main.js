@@ -34,6 +34,7 @@ function makeProductHTML(productos) {
         })
         .join(" ");
 }
+
 function renderProducts(data) {
     const html = makeProductHTML(data);
     document.getElementById("productsContainer").innerHTML = html;
@@ -41,6 +42,21 @@ function renderProducts(data) {
 socket.on("productos", (productos) => {
     renderProducts(productos);
 });
+
+
+function addProducto(e) {
+    const cargarProductoTitle = document.getElementById("cargarProductoTitle").value
+    const cargarProductoPrice = document.getElementById("cargarProductoPrice").value
+    const cargarProductoFoto = document.getElementById("cargarProductoFoto").value
+    const producto = {
+
+        title: cargarProductoTitle,
+        price: cargarProductoPrice,
+        foto: cargarProductoFoto,
+    };
+    socket.emit("nuevoProducto", producto);
+    return false;
+}
 
 function addMessage(e) {
     const mensaje = {
@@ -52,3 +68,5 @@ function addMessage(e) {
     socket.emit("nuevoMensaje", mensaje);
     return false;
 }
+
+

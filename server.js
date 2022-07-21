@@ -111,11 +111,15 @@ router.get("/:id", async (req, res) => {
     res.json(prod)
 })
 
-router.post("/", async (req, res) => {
-    productos.insertData(knex, req.body.title,req.body.price,req.body.thumbnail)
-    const lista = await productos.getData(knex)
-    res.json(lista)
-})
+// router.post("/", async (req, res) => {
+//     productos.insertData(knex, req.body.title,req.body.price,req.body.thumbnail)
+//     const lista = await productos.getData(knex)
+//     res.json(lista)
+// })
+
+
+
+
 
 
 router.put("/:id", async (req, res) => {
@@ -148,6 +152,15 @@ io.on("connection", async (socket) => {
 
     let productList = await productos.getData(knex)
     socket.emit("productos", productList)
+
+
+    socket.on('nuevoProducto', async producto => {
+        productos.insertData(knex, producto.title,producto.price,producto.foto)
+
+        io.sockets.emit("productos", await productos.getData(knex));
+    })
+
+
 
     socket.emit("mensajes", mensajes);
 
