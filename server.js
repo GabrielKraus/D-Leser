@@ -42,20 +42,40 @@ class CreateTable {
         let list = []
         for(const row of rows) {
             list.push({
-                tilet: row["title"],
+                title: row["title"],
                 price: row["price"],
                 thumbnail: row["thumbnail"],
                 timeStamp: row["timeStamp"],
                 id: row["id"]
             })
         }
-        console.log(list)
+        
         return list;
+    }
+    getDataById = async (knex, id)=>{
+        let prod = await knex(this.tableName).select("*").where({id: id})
+        return{
+                title: prod[0]["title"],
+                price: prod[0]["price"],
+                thumbnail: prod[0]["thumbnail"],
+                timeStamp: prod[0]["timeStamp"],
+                id: prod[0]["id"]
+        }
     }
     insertData = async (knex, title, price, thumbnail) =>{
         await knex(this.tableName).insert(
             {title: title, price: price, thumbnail: thumbnail}
         )
+    }
+    updateData = async (knex, id, title, price, thumbnail)=>{
+        await knex(this.tableName).where({id: id}).update( {
+            title: title,
+            price: price,
+            thumbnail: thumbnail
+        })
+    }
+    deleteData = async (knex, id) =>{
+        await knex(this.tableName).where({id: id}).del()
     }
 }
 
@@ -68,72 +88,49 @@ if(!knex.schema.hasTable("productos")){
 }
 
 
-
-
-// const productos = [{
-//     title: "Libro1",
-//     price: 150,
-//     thumbnail: "foto",
-//     id: 1
-// }, {
-//     title: "Libro2",
-//     price: 250,
-//     thumbnail: "foto",
-//     id: 2
-// }
-// ];
-
 app.get("/", (req, res) => {
     res.render("pages/index")
 })
 
 
-router.get("/", (req, res) => {
-    res.json(productos.getData(knex))
+router.get("/", async (req, res) => {
+    const lista = await productos.getData(knex)
+    res.json(lista)
 })
 
 
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
     let id = parseInt(req.params.id)
-    let producto = productos.find(producto => producto.id == id)
-    if (producto != null) {
-        res.json(
-            producto
-        )
-    } else {
-        res.send({ error: `no existe el producto con el id ${id}` })
-    }
+    const prod = await productos.getDataById(knex, id)
+    res.json(prod)
 })
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     productos.insertData(knex, req.body.title,req.body.price,req.body.thumbnail)
-    res.json(productos.getData(knex))
+    const lista = await productos.getData(knex)
+    res.json(lista)
 })
 
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
     let id = parseInt(req.params.id)
 
     let producto = req.body;
-    let productoEncontrado = productos.find(producto => producto.id === id);
 
-    productoEncontrado.nombre = producto.nombre;
-    productoEncontrado.precio = producto.precio;
+    productos.updateData(knex, id, producto.title, producto.price, producto.thumbnail)
 
-    productos[productos.indexOf(productoEncontrado)] = { ...producto, id: productoEncontrado.id }
-    res.json(
-        { productos }
-    )
+    const lista = await productos.getData(knex)
+    res.json(lista)
 })
 
 
-router.delete("/:id", (req, res) => {
-    let productId = parseInt(req.params.id)
-    productos.splice(productos.indexOf(productos.find(el => el.id == productId)), 1)
-    res.json({
-        productos
-    })
+router.delete("/:id", async(req, res) => {
+    let id = parseInt(req.params.id)
+    productos.deleteData(knex, id)
+    
+    const lista = await productos.getData(knex)
+    res.json(lista)
 })
 
 
