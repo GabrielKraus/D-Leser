@@ -21,7 +21,7 @@ app.set("views", "./public");
 app.set('view engine', 'ejs')
 
 const { knex } = require(`./options/mariaDB`);
-// const { knexLite } = require(`./options/dataSQLite3`);
+const { knexLite } = require(`./options/dataSQLite3`);
 
 class CreateTable {
     constructor(tableName) {
@@ -88,6 +88,50 @@ class CreateTable {
 
 
 
+class CreateTableMensajes {
+    constructor(tableName) {
+        this.tableName = tableName
+    }
+    createTable = async(knex)=>{
+
+        let tableStatus = await (knex.schema.hasTable(this.tableName))
+        if(!tableStatus)
+            {await knex.schema.createTable(this.tableName, table=>{
+                table.string('email');
+                table.string('mensaje');
+                table.timestamp('timeStamp').defaultTo(knex.fn.now())
+                table.increments('id').primary();
+            })
+            console.log(`tabla ${this.tableName} creada`)
+        }else{
+            console.log(`la tabla mensajes ya existe`)
+        }
+        
+    }
+    getData = async (knex) => {
+        let rows = await knex.from(this.tableName).select("*")
+        let list = []
+        for(const row of rows) {
+            list.push({
+                email: row["email"],
+                mensaje: row["mensaje"],
+                timeStamp: row["timeStamp"],
+                id: row["id"]
+            })
+        }
+        
+        return list;
+    }
+    insertData = async (knex, email, mensaje) =>{
+        await knex(this.tableName).insert(
+            {email: email, mensaje: mensaje}
+        )
+    }
+}
+
+
+//#region productos
+
 const productos = new CreateTable("productos")
 productos.createTable(knex);
 
@@ -142,9 +186,12 @@ router.delete("/:id", async(req, res) => {
     res.json(lista)
 })
 
+//#endregion
+
+const mensajess = new CreateTableMensajes("mensajes")
+mensajess.createTable(knexLite);
 
 
-const mensajes = [];
 
 io.on("connection", async (socket) => {
     console.log("Nuevo cliente conectado!");
@@ -162,11 +209,15 @@ io.on("connection", async (socket) => {
 
 
 
+
+
+
+    let mensajes = await mensajess.getData(knexLite)
     socket.emit("mensajes", mensajes);
 
-    socket.on('nuevoMensaje', mensaje => {
-        mensajes.push(mensaje);
-        io.sockets.emit('mensajes', mensajes);
+    socket.on('nuevoMensaje', async mensaje => {
+        mensajess.insertData(knexLite, mensaje.email,mensaje.mensaje)
+        io.sockets.emit('mensajes', await mensajess.getData(knexLite));
     })
 
     

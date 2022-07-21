@@ -5,9 +5,9 @@ function makeHTML(mensajes) {
     return mensajes
         .map((elem, index) => {
             return `<div>
-                <b style="color: blue;">${elem.author}</b>
-                <span style="color: brown;">[${elem.date}]</span>:
-                <em>${elem.text}</em> </div>`;
+                <b style="color: blue;">${elem.email}</b>
+                <span style="color: brown;">[${elem.timeStamp}]</span>:
+                <em>${elem.mensaje}</em> </div>`;
         })
         .join(" ");
 }
@@ -60,10 +60,8 @@ function addProducto(e) {
 
 function addMessage(e) {
     const mensaje = {
-        author: document.getElementById("username").value,
-        date: `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-        
-        text: document.getElementById("texto").value,
+        email: document.getElementById("username").value,
+        mensaje: document.getElementById("texto").value
     };
     socket.emit("nuevoMensaje", mensaje);
     return false;
