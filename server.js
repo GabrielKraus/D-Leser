@@ -1,296 +1,166 @@
 const express = require("express");
+const { Server: HttpServer } = require('http')
+const { Server: IOServer } = require('socket.io');
+const { PassThrough } = require("stream");
 const { Router } = express;
-const fs = require("fs");
 
 const app = express();
-const routerProductos = express.Router();
-const routerCarritos = express.Router();
+const router = express.Router();
+const httpServer = new HttpServer(app)
+const io = new IOServer(httpServer)
 
-routerProductos.use(express.json())
-routerProductos.use(express.urlencoded({ extended: true }))
-
-routerCarritos.use(express.json())
-routerCarritos.use(express.urlencoded({ extended: true }))
+router.use(express.json())
+router.use(express.urlencoded({ extended: true }))
 
 app.use(express.json());
-app.use('/api/productos', routerProductos);
-app.use('/api/carrito', routerCarritos);
+app.use('/api/productos', router);
 app.use(express.static("public"))
 app.use(express.urlencoded({ extended: true }))
 
-let administrador = false
-//#region Productos
-routerProductos.get("/", (req, resPost) => {
-    fs.readFile("./productos.txt", 'utf8', (err, data) => {
-        if (err) {
-            console.log("error")
+app.set("views", "./public");
+app.set('view engine', 'ejs')
+
+const { knex } = require(`./options/mariaDB`);
+
+
+class CreateTable {
+    constructor(tableName) {
+        this.tableName = tableName
+    }
+    createTable = async(knex)=>{
+        await knex.schema.createTable(this.tableName, table=>{
+            table.string('title');
+            table.float('price');
+            table.string('thumbnail');
+            table.timestamp('timeStamp').defaultTo(knex.fn.now())
+            table.increments('id').primary();
+        })
+        console.log(`tabla ${this.tableName} creada`)
+    }
+    getData = async (knex) => {
+        let rows = await knex.from(this.tableName).select("*")
+        let list = []
+        for(const row of rows) {
+            list.push({
+                tilet: row["title"],
+                price: row["price"],
+                thumbnail: row["thumbnail"],
+                timeStamp: row["timeStamp"],
+                id: row["id"]
+            })
         }
-        resPost.json(JSON.parse(data))
-    });
+        console.log(list)
+        return list;
+    }
+    insertData = async (knex, title, price, thumbnail) =>{
+        await knex(this.tableName).insert(
+            {title: title, price: price, thumbnail: thumbnail}
+        )
+    }
+}
+
+
+const productos = new CreateTable("productos")
+if(!knex.schema.hasTable("productos")){
+    productos.createTable(knex);
+}else{
+    console.log(`la tabla productos ya existe`)
+}
+
+
+
+
+// const productos = [{
+//     title: "Libro1",
+//     price: 150,
+//     thumbnail: "foto",
+//     id: 1
+// }, {
+//     title: "Libro2",
+//     price: 250,
+//     thumbnail: "foto",
+//     id: 2
+// }
+// ];
+
+app.get("/", (req, res) => {
+    res.render("pages/index")
+})
+
+
+router.get("/", (req, res) => {
+    res.json(productos.getData(knex))
 })
 
 
 
-routerProductos.get("/:id", (req, res) => {
+router.get("/:id", (req, res) => {
     let id = parseInt(req.params.id)
-    fs.readFile("./productos.txt", 'utf8', (err, data) => {
-        if (err) {
-            console.log("error")
-        }
-        let productos = JSON.parse(data)
-        let producto = productos.find(producto => producto.id == id)
-        res.json(producto)
-    });
-})
-
-
-
-routerProductos.post("/", (req, res) => {
-    if(administrador){
-        fs.readFile("./productos.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            productos = JSON.parse(data)
-            const newProduct = {
-                id: productos.length+1,
-                timeStamp: new Date(Date.now()).toLocaleString(),
-                title: req.body.title,
-                description: req.body.description,
-                code: req.body.code,
-                thumbnail: req.body.thumbnail,
-                price: req.body.price,
-                stock: req.body.stock            
-                
-            };
-            productos.push(newProduct)
-            fs.writeFile("./productos.txt", JSON.stringify(productos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(newProduct)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/productos metodo POST no autorizada`})
+    let producto = productos.find(producto => producto.id == id)
+    if (producto != null) {
+        res.json(
+            producto
+        )
+    } else {
+        res.send({ error: `no existe el producto con el id ${id}` })
     }
 })
 
+router.post("/", (req, res) => {
+    productos.insertData(knex, req.body.title,req.body.price,req.body.thumbnail)
+    res.json(productos.getData(knex))
+})
 
-routerProductos.put("/:id", (req, res) => {
+
+router.put("/:id", (req, res) => {
     let id = parseInt(req.params.id)
-    if(administrador){
-        fs.readFile("./productos.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            let productos = JSON.parse(data)
-            let productoEditado = req.body;
-            let productoEncontrado = productos.find(producto => producto.id == id)
-            productos[productos.indexOf(productoEncontrado)] = {
-                id: productoEncontrado.id, 
-                timeStamp: productoEncontrado.timeStamp,
-                title: productoEditado.title,
-                description: productoEditado.description,
-                code: productoEditado.code,
-                thumbnail: productoEditado.thumbnail,
-                price: productoEditado.price,
-                stock: productoEditado.stock
-                }
-            fs.writeFile("./productos.txt", JSON.stringify(productos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(productos)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/productos/${id} metodo PUT no autorizada`})
-    }
+
+    let producto = req.body;
+    let productoEncontrado = productos.find(producto => producto.id === id);
+
+    productoEncontrado.nombre = producto.nombre;
+    productoEncontrado.precio = producto.precio;
+
+    productos[productos.indexOf(productoEncontrado)] = { ...producto, id: productoEncontrado.id }
+    res.json(
+        { productos }
+    )
+})
+
+
+router.delete("/:id", (req, res) => {
+    let productId = parseInt(req.params.id)
+    productos.splice(productos.indexOf(productos.find(el => el.id == productId)), 1)
+    res.json({
+        productos
+    })
+})
+
+
+
+const mensajes = [];
+
+io.on("connection", (socket) => {
+    console.log("Nuevo cliente conectado!");
+
+    socket.emit("productos", productos)
+
+
+    socket.emit("mensajes", mensajes);
+
+    socket.on('nuevoMensaje', mensaje => {
+        mensajes.push(mensaje);
+        io.sockets.emit('mensajes', mensajes);
+    })
 
     
-    
-})
 
-
-routerProductos.delete("/:id", (req, res) => {
-    let id = parseInt(req.params.id)
-
-    if(administrador){
-        fs.readFile("./productos.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            let productos = JSON.parse(data)
-            let producto = productos.find(producto => producto.id == id)
-    
-            productos.splice(productos.indexOf(producto), 1)
-    
-            fs.writeFile("./productos.txt", JSON.stringify(productos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(productos)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/productos/${id} metodo DELETE no autorizada`})
-    }
-})
-
-
-
-
-
-//#endregion
-
-
-//#region Carritos
-routerCarritos.get("/", (req, resPost) => {
-    fs.readFile("./carrito.txt", 'utf8', (err, data) => {
-        if (err) {
-            console.log("error")
-        }
-        resPost.json(JSON.parse(data))
-    });
-})
-
-
-
-routerCarritos.get("/:id", (req, res) => {
-    let id = parseInt(req.params.id)
-    fs.readFile("./carrito.txt", 'utf8', (err, data) => {
-        if (err) {
-            console.log("error")
-        }
-        let carritos = JSON.parse(data)
-        let carrito = carritos.find(carrito => carrito.id == id)
-        res.json(carrito)
-    });
-})
-
-
-
-routerCarritos.post("/", (req, res) => {
-    if(administrador){
-        fs.readFile("./carrito.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            carritos = JSON.parse(data)
-            const newCarrito = {
-                id: carritos.length+1,
-                timeStamp: new Date(Date.now()).toLocaleString(),
-                productos: req.body.productos
-            };
-            carritos.push(newCarrito)
-            fs.writeFile("./carrito.txt", JSON.stringify(carritos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(newCarrito)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/carrito metodo POST no autorizada`})
-    }
-})
-
-
-routerCarritos.put("/:id", (req, res) => {
-    let id = parseInt(req.params.id)
-    if (administrador) {
-        fs.readFile("./carrito.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            let carritos = JSON.parse(data)
-            let carritoEditado = req.body;
-            let carritoEncontrado = carritos.find(carrito => carrito.id == id)
-            carritos[carritos.indexOf(productoEncontrado)] = { 
-                id: carritoEncontrado.id,
-                timeStamp: carritoEncontrado.timeStamp,
-                productos: carritoEditado.productos
-            }
-            fs.writeFile("./carrito.txt", JSON.stringify(carritos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(carritos)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/carrito/${id} metodo PUT no autorizada`})
-    }
-})
-
-
-routerCarritos.delete("/:id", (req, res) => {
-    let id = parseInt(req.params.id)
-
-    if(administrador){
-        fs.readFile("./carrito.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            let carritos = JSON.parse(data)
-            let carrito = carritos.find(carrito => carrito.id == id)
-    
-            carritos.splice(carritos.indexOf(carrito), 1)
-    
-            fs.writeFile("./carrito.txt", JSON.stringify(carritos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(carritos)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/carrito/${id} metodo DELETE no autorizada`})
-    }
-})
-
-routerCarritos.delete("/:id/productos/:id_prod", (req, res) => {
-    let id = parseInt(req.params.id)
-    let idProd = parseInt(req.params.id_prod) 
-    if (administrador) {
-        fs.readFile("./carrito.txt", 'utf8', (err, data) => {
-            if (err) {
-                console.log("error")
-            }
-            let carritos = JSON.parse(data)
-            let carrito = carritos.find(carrito => carrito.id == id)
-            let productos = carrito.productos
-            let producto =  productos.find(producto => producto.id == idProd)
-            productos.splice(productos.indexOf(producto), 1)
-            fs.writeFile("./carrito.txt", JSON.stringify(carritos, null, 2), err => {
-                if (err) {
-                    console.error(err);
-                }
-                res.json(carritos)
-            });
-        });
-    }else{
-        res.json({error: `-1, descripcion ruta /api/carrito/${id}/productos/${idProd} metodo DELETE no autorizada`})
-    }
-})
-
-//#endregion
-
-
-
-
-
-
-
-
-
-
+});
 
 const PORT = 8080 || process.env.PORT;
-const connectedServer = app.listen(PORT, function () {
+const connectedServer = httpServer.listen(PORT, function () {
     console.log(
-        `Servidor Http escuchando en el puerto ${connectedServer.address().port
+        `Servidor Http con Websockets escuchando en el puerto ${connectedServer.address().port
         }`
     );
 });
