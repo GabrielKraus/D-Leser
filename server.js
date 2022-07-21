@@ -142,10 +142,12 @@ router.delete("/:id", async(req, res) => {
 
 const mensajes = [];
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
     console.log("Nuevo cliente conectado!");
 
 
+    let productList = await productos.getData(knex)
+    socket.emit("productos", productList)
 
     socket.emit("mensajes", mensajes);
 

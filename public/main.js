@@ -28,6 +28,7 @@ function makeProductHTML(productos) {
                 <strong>Title: ${elem.title}</strong><br>
                 <em>Price: ${elem.price}</em><br>
                 <em>Thumbnail: ${elem.thumbnail}</em><br>
+                <em>Timestamp: ${elem.timeStamp}</em><br>
                 <em>Id: ${elem.id}</em><br>
                 </div>`;
         })
