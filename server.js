@@ -21,21 +21,28 @@ app.set("views", "./public");
 app.set('view engine', 'ejs')
 
 const { knex } = require(`./options/mariaDB`);
-
+// const { knexLite } = require(`./options/dataSQLite3`);
 
 class CreateTable {
     constructor(tableName) {
         this.tableName = tableName
     }
     createTable = async(knex)=>{
-        await knex.schema.createTable(this.tableName, table=>{
-            table.string('title');
-            table.float('price');
-            table.string('thumbnail');
-            table.timestamp('timeStamp').defaultTo(knex.fn.now())
-            table.increments('id').primary();
-        })
-        console.log(`tabla ${this.tableName} creada`)
+
+        let tableStatus = await (knex.schema.hasTable(this.tableName))
+        if(!tableStatus)
+            {await knex.schema.createTable(this.tableName, table=>{
+                table.string('title');
+                table.float('price');
+                table.string('thumbnail');
+                table.timestamp('timeStamp').defaultTo(knex.fn.now())
+                table.increments('id').primary();
+            })
+            console.log(`tabla ${this.tableName} creada`)
+        }else{
+            console.log(`la tabla productos ya existe`)
+        }
+        
     }
     getData = async (knex) => {
         let rows = await knex.from(this.tableName).select("*")
@@ -80,12 +87,10 @@ class CreateTable {
 }
 
 
+
 const productos = new CreateTable("productos")
-if(!knex.schema.hasTable("productos")){
-    productos.createTable(knex);
-}else{
-    console.log(`la tabla productos ya existe`)
-}
+productos.createTable(knex);
+
 
 
 app.get("/", (req, res) => {
@@ -128,7 +133,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async(req, res) => {
     let id = parseInt(req.params.id)
     productos.deleteData(knex, id)
-    
+
     const lista = await productos.getData(knex)
     res.json(lista)
 })
@@ -140,7 +145,6 @@ const mensajes = [];
 io.on("connection", (socket) => {
     console.log("Nuevo cliente conectado!");
 
-    socket.emit("productos", productos)
 
 
     socket.emit("mensajes", mensajes);
