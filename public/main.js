@@ -2,6 +2,7 @@ const socket = io();
 
 
 function makeHTML(mensajes) {
+    console.log(mensajes)
     return mensajes
         .map((elem, index) => {
             return `<div>
@@ -12,13 +13,9 @@ function makeHTML(mensajes) {
         .join(" ");
 }
 
-function render(data) {
-    const html = makeHTML(data);
-    document.getElementById("mensajes").innerHTML = html;
-}
-
 socket.on("mensajes", (mensajes) => {
-    render(mensajes);
+    const html = makeHTML(mensajes);
+    document.getElementById("mensajes").innerHTML = html;
 });
 
 function makeProductHTML(productos) {
@@ -35,12 +32,9 @@ function makeProductHTML(productos) {
         .join(" ");
 }
 
-function renderProducts(data) {
-    const html = makeProductHTML(data);
-    document.getElementById("productsContainer").innerHTML = html;
-}
 socket.on("productos", (productos) => {
-    renderProducts(productos);
+    const html = makeProductHTML(productos);
+    document.getElementById("productsContainer").innerHTML = html;
 });
 
 
