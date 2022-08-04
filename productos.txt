@@ -1,0 +1,32 @@
+[
+  {
+    "id": 0,
+    "timeStamp": "14/7/2022 09:49:22",
+    "title": "Libro1",
+    "description": "una breve descripcion",
+    "code": 13548795,
+    "thumbnail": "foto",
+    "price": 120,
+    "stock": 10
+  },
+  {
+    "id": 1,
+    "timeStamp": "14/7/2022 09:49:42",
+    "title": "Libro2",
+    "description": "una breve descripcion2",
+    "code": 1354487,
+    "thumbnail": "foto2",
+    "price": 220,
+    "stock": 20
+  },
+  {
+    "id": 2,
+    "timeStamp": "14/7/2022 10:13:05",
+    "title": "Libro3",
+    "description": "una breve descripcion3",
+    "code": 1354487,
+    "thumbnail": "foto3",
+    "price": 320,
+    "stock": 30
+  }
+]
