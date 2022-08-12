@@ -1,14 +1,14 @@
 import mongoose from 'mongoose'
 const {Schema, model} = mongoose
 
-const carritoCollection = `carritos`
+const CarritoCollection = `carritos`
 
-const CarritoSchema = new mongoose.Schema({
+const CarritoSchema = new Schema({
     id: mongoose.ObjectId,
     timeStamp: { type : Date, default: Date.now },
     productos: { type : Array}
 })
 
-const CarritoModel = model(carritoCollection, CarritoSchema)
+const CarritoModel = model(CarritoCollection, CarritoSchema)
 
-export default CarritoModel
+export { CarritoModel, CarritoSchema };

@@ -1,5 +1,6 @@
 import { Router } from "express";
-import ProductModel from '../models/producto.js'
+import {ProductModel} from '../models/producto.js'
+import { ProductDao } from "../daos/index.js";
 
 const routerProductos = Router();
 
@@ -8,7 +9,10 @@ let administrador = true
 
 
 routerProductos.get("/", async (req, resPost) => {
-    const productList = await ProductModel.find({})
+    // const productList = await ProductModel.find({})
+
+    const productList = await ProductDao.getAll()
+
     resPost.json(productList)
 })
 routerProductos.get("/:id", async (req, res) => {

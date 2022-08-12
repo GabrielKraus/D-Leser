@@ -1,7 +1,9 @@
 import mongoose from 'mongoose'
+import { config } from '../config/config.js';
+
 const controller = async () => {
     try {
-        const URL = "mongodb://localhost:27017/ecommerce";
+        const URL = config.MONGO_DB.URL;
         let rta = mongoose.connect(URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true,

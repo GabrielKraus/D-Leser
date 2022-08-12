@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
 const {Schema, model} = mongoose
 
-const productoCollection = `productos`
+const ProductoCollection = `productos`
 
-const ProductoSchema = new mongoose.Schema({
+const ProductoSchema = new Schema({
     id: mongoose.ObjectId,
     timeStamp: { type : Date, default: Date.now },
     title: {type: String},
@@ -15,6 +15,6 @@ const ProductoSchema = new mongoose.Schema({
 
 })
 
-const ProductModel = model(productoCollection, ProductoSchema)
+const ProductModel = model(ProductoCollection, ProductoSchema)
 
-export default ProductModel
+export { ProductModel, ProductoSchema };
