@@ -1,27 +1,27 @@
 const express = require("express");
 const { Server: HttpServer } = require('http')
-const { Server: IOServer } = require('socket.io');
-const { PassThrough } = require("stream");
 const { Router } = express;
-
 const app = express();
 const router = express.Router();
 const httpServer = new HttpServer(app)
-const io = new IOServer(httpServer)
-
 router.use(express.json())
 router.use(express.urlencoded({ extended: true }))
 
 app.use(express.json());
-app.use('/api/productos', router);
+const routerProductos = Router();
+app.use('/api/productos', routerProductos);
+const routerMensajes = Router();
+app.use('/api/mensajes', routerMensajes);
+const routerMensajesTest = Router();
+app.use('/api/mensajes-test', routerMensajes);
+const routerProductosTest = Router();
+app.use('/api/productos-test', routerProductosTest);
 app.use(express.static("public"))
 app.use(express.urlencoded({ extended: true }))
 
-app.set("views", "./public");
-app.set('view engine', 'ejs')
+const{normalize, schema, denormalize} = require("normalizr")
 
 const { knex } = require(`./options/mariaDB`);
-const { knexLite } = require(`./options/dataSQLite3`);
 
 class CreateTable {
     constructor(tableName) {
@@ -40,7 +40,7 @@ class CreateTable {
             })
             console.log(`tabla ${this.tableName} creada`)
         }else{
-            console.log(`la tabla productos ya existe`)
+            console.log(`la tabla ${this.tableName} ya existe`)
         }
         
     }
@@ -97,14 +97,11 @@ class CreateTableMensajes {
         let tableStatus = await (knex.schema.hasTable(this.tableName))
         if(!tableStatus)
             {await knex.schema.createTable(this.tableName, table=>{
-                table.string('email');
                 table.string('mensaje');
-                table.timestamp('timeStamp').defaultTo(knex.fn.now())
-                table.increments('id').primary();
             })
             console.log(`tabla ${this.tableName} creada`)
         }else{
-            console.log(`la tabla mensajes ya existe`)
+            console.log(`la tabla ${this.tableName} ya existe`)
         }
         
     }
@@ -113,60 +110,50 @@ class CreateTableMensajes {
         let list = []
         for(const row of rows) {
             list.push({
-                email: row["email"],
-                mensaje: row["mensaje"],
-                timeStamp: row["timeStamp"],
-                id: row["id"]
+                mensaje: row["mensaje"]
             })
         }
         
         return list;
     }
-    insertData = async (knex, email, mensaje) =>{
+    insertData = async (knex, mensaje) =>{
         await knex(this.tableName).insert(
-            {email: email, mensaje: mensaje}
+            {mensaje: mensaje}
         )
     }
 }
-
-
-//#region productos
-
-const productos = new CreateTable("productos")
-productos.createTable(knex);
-
-
 
 app.get("/", (req, res) => {
     res.render("pages/index")
 })
 
+//#region productos
 
-router.get("/", async (req, res) => {
+const productos = new CreateTable("productos")
+productos.createTable(knex);
+routerProductos.get("/", async (req, res) => {
+    const lista = await productos.getData(knex)
+    res.json(lista)
+})
+
+routerProductos.get("/:id", async (req, res) => {
+    let id = parseInt(req.params.id)
+    const prod = await productos.getDataById(knex, id)
+    res.json(prod)
+})
+
+routerProductos.post("/", async (req, res) => {
+    productos.insertData(knex, req.body.title,req.body.price,req.body.thumbnail)
     const lista = await productos.getData(knex)
     res.json(lista)
 })
 
 
 
-router.get("/:id", async (req, res) => {
-    let id = parseInt(req.params.id)
-    const prod = await productos.getDataById(knex, id)
-    res.json(prod)
-})
-
-// router.post("/", async (req, res) => {
-//     productos.insertData(knex, req.body.title,req.body.price,req.body.thumbnail)
-//     const lista = await productos.getData(knex)
-//     res.json(lista)
-// })
 
 
 
-
-
-
-router.put("/:id", async (req, res) => {
+routerProductos.put("/:id", async (req, res) => {
     let id = parseInt(req.params.id)
 
     let producto = req.body;
@@ -178,7 +165,7 @@ router.put("/:id", async (req, res) => {
 })
 
 
-router.delete("/:id", async(req, res) => {
+routerProductos.delete("/:id", async(req, res) => {
     let id = parseInt(req.params.id)
     productos.deleteData(knex, id)
 
@@ -187,42 +174,64 @@ router.delete("/:id", async(req, res) => {
 })
 
 //#endregion
+//#region mensajes-test
+const mensajesFake = new CreateTableMensajes("mensajes-test")
+mensajesFake.createTable(knex);
 
-const mensajess = new CreateTableMensajes("mensajes")
-mensajess.createTable(knexLite);
-
-
-
-io.on("connection", async (socket) => {
-    console.log("Nuevo cliente conectado!");
+const mensajes = require("./util/fakeMessageGenerator")
 
 
-    let productList = await productos.getData(knex)
-    socket.emit("productos", productList)
+routerMensajes.get("/", async (req, res) => {
+    mensajes.forEach(message => {
+        mensajesFake.insertData(knex, message)
+    });
+    const lista = await mensajesFake.getData(knex)
 
+    const authorSchema = new schema.Entity('authors')
+    const textSchema = new schema.Entity('text')
+    const messageSchema = new schema.Entity('messages', {
+        author:authorSchema,
+        text:textSchema
+    })
 
-    socket.on('nuevoProducto', async producto => {
-        productos.insertData(knex, producto.title,producto.price,producto.foto)
+    let messageList=[]
+    lista.forEach(msj=>{
+        console.log(normalize(JSON.parse(msj.mensaje), messageSchema))
+    })
 
-        io.sockets.emit("productos", await productos.getData(knex));
+    lista.forEach(msj=>{
+        messageList.push(JSON.parse(msj.mensaje))
     })
 
 
-
-
-
-
-    let mensajes = await mensajess.getData(knexLite)
-    socket.emit("mensajes", mensajes);
-
-    socket.on('nuevoMensaje', async mensaje => {
-        mensajess.insertData(knexLite, mensaje.email,mensaje.mensaje)
-        io.sockets.emit('mensajes', await mensajess.getData(knexLite));
-    })
-
+    res.json(messageList)
+});
     
 
-});
+
+//#endregion
+
+//#region productos-test
+
+const productosFake = new CreateTable("productosFake")
+productosFake.createTable(knex);
+
+
+
+const data = require("./util/fakeProductsGenerator")
+
+routerProductosTest.get("/", async (req, res) => {
+    data.forEach(producto => {
+        productosFake.insertData(knex, producto.title, producto.price, producto.thumbnail)
+    });
+    const lista = await productosFake.getData(knex)
+    res.json(lista)
+})
+
+
+//#endregion
+
+
 
 const PORT = 8080 || process.env.PORT;
 const connectedServer = httpServer.listen(PORT, function () {
