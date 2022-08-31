@@ -10,8 +10,8 @@ const config = {
         DB_NAME: "ecommerce",
     },
     server: {
-        PORT: 8080 ?? DEV_PORT,
-        routes: {
+        PORT: 8080,
+        routes: { 
             base: "/api",
             products: "/api/productos",
             carts: "/api/carritos",
