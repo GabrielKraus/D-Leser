@@ -7,7 +7,7 @@ const CarritoSchema = new Schema({
     id: mongoose.ObjectId,
     timeStamp: { type : Date, default: Date.now },
     productos: { type : Array}
-})
+}, {timestamps:true})
 
 const CarritoModel = model(CarritoCollection, CarritoSchema)
 

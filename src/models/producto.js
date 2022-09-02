@@ -13,7 +13,7 @@ const ProductoSchema = new Schema({
     price: {type: Number},
     stock: {type: Number},
 
-})
+}, {timestamps:true})
 
 const ProductModel = model(ProductoCollection, ProductoSchema)
 
