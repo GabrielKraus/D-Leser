@@ -2,7 +2,10 @@ import { Router } from "express";
 import userService from "../models/Users.js";
 import { createHash, isValidPassword } from "../utils.js";
 import passport from 'passport';
+
 const router = Router()
+
+
 
 router.post('/register',passport.authenticate('register', {failureRedirect: '/api/sessions/registerfail'}), async (req, res) => {
     res.send({status: "success", payload: req.user._id})
