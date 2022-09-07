@@ -2,7 +2,6 @@ import { Router } from "express";
 import userService from "../models/Users.js";
 import { createHash, isValidPassword } from "../utils.js";
 import passport from 'passport';
-
 const router = Router()
 
 router.post('/register',passport.authenticate('register', {failureRedirect: '/api/sessions/registerfail'}), async (req, res) => {
@@ -27,6 +26,7 @@ router.get('/loginfail',(req,res)=>{
     console.log("login failed");
     res.send({status:"error",error:"Login failed"})
 })
+
 
 router.get('/logout', async (req, res) => {
     req.session.destroy(err => {
