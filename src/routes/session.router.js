@@ -31,7 +31,7 @@ router.get('/loginfail',(req,res)=>{
 router.get('/logout', async (req, res) => {
     req.session.destroy(err => {
         if (err) return res.status(500).send("error");
-        res.send("listo")
+        res.send({status:"success"})
     })
 })
 
