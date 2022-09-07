@@ -9,6 +9,8 @@ import MongoStore from 'connect-mongo';
 import session from 'express-session';
 import { routerCarritos } from './routes/cart.router.js';
 import { routerProductos } from './routes/product.router.js';
+import passport from 'passport';
+import initializePassport from './config/passport.config.js';
 const app = express();
 
 
@@ -42,6 +44,11 @@ app.use(session({
     saveUninitialized:false
 }))
 
+
 app.use('/', viewsRouter)
 app.use('/api/sessions', sessionsRouter)
+
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session())
 

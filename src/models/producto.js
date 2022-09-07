@@ -5,7 +5,6 @@ const ProductoCollection = `productos`
 
 const ProductoSchema = new Schema({
     id: mongoose.ObjectId,
-    timeStamp: { type : Date, default: Date.now },
     title: {type: String},
     description: {type: String},
     code: {type: Number},

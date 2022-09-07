@@ -1,49 +1,36 @@
 import { Router } from "express";
 import userService from "../models/Users.js";
+import { createHash, isValidPassword } from "../utils.js";
+import passport from 'passport';
 
 const router = Router()
 
-router.post('/register', async (req, res)=>{
-    
-    const{nombre, apellido, email, password, edad} = req.body;
-    if(!nombre || !apellido || !email || !password || !edad){
-        return res.status(400).send({error: "Incomplete values"})
-    }
-    let user = {
-        nombre,
-        apellido,
-        email,
-        edad:edad,
-        password
-    }
-    try{
-        const result = await userService.create(user);
-        res.send({status: "success", payload: result})
-    }catch(error){
-        res.status(500).send({error:error})
-    }
+router.post('/register',passport.authenticate('register', {failureRedirect: '/api/sessions/registerfail'}), async (req, res) => {
+    res.send({status: "success", payload: req.user._id})
 })
 
-router.post('/login', async(req, res)=>{
-    try{
-        const{email, password} = req.body
-        if(!email || !password){
-            return res.status(400).send({error: "Incomplete values"})
-        }
-        const user = await userService.findOne({$and:[{email:email},{password: password}]},{nombre: 1, apellido: 1, email: 1})
-        if(!user){
-            return res.status(400).send({error: "Usuario no encontrado"})
-        }
-        req.session.user = user;
-        res.send({status: "success", payload: result})
-    }catch(error){
-        res.status(500).send({error:error})
-    }
+router.get('/registerfail', async(req, res)=>{
+    console.log("Register failed");
+    res.status(500).send({status:"error",error:"Register failed"})
 })
 
-router.get('/logout',async(req,res)=>{
-    req.session.destroy(err=>{
-        if(err) return res.status(500).send("error");
+router.post('/login', passport.authenticate('login', {failureRedirect:'/api/sessions/loginfail'}), async (req, res) => {
+    req.session.user = {
+        nombre: req.user.nombre,
+        email: req.user.email,
+        id: req.user._id
+    };
+
+    res.send({status:"success", payload: req.user._id})
+})
+router.get('/loginfail',(req,res)=>{
+    console.log("login failed");
+    res.send({status:"error",error:"Login failed"})
+})
+
+router.get('/logout', async (req, res) => {
+    req.session.destroy(err => {
+        if (err) return res.status(500).send("error");
         res.send("listo")
     })
 })
