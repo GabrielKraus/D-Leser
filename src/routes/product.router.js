@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {ProductModel} from '../models/producto.js'
 import { ProductDao } from "../daos/index.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
 
 const routerProductos = Router();
 
@@ -13,31 +14,26 @@ routerProductos.get("/", async (req, resPost) => {
 
     const productList = await ProductDao.getAll()
 
-    resPost.json(productList)
+    resPost.send(productList)
 })
 routerProductos.get("/:id", async (req, res) => {
     let id = req.params.id
-    const product = await ProductModel.find({_id: id})
-    res.json(product)
+    const product = await ProductDao.getById(id)
+    res.send(product)
 })
-routerProductos.post("/", (req, res) => {
-    if(administrador){
-        const producto = {
-            title: req.body.title,
-            description: req.body.description,
-            code: req.body.code,
-            thumbnail: req.body.thumbnail,
-            price: req.body.price,
-            stock: req.body.stock
-        };
-        const productoSaved = new ProductModel(producto)
-        productoSaved.save();
-        res.json(producto)
-    }else{
-        res.json({error: `-1, descripcion ruta /api/productos metodo POST no autorizada`})
-    }
+routerProductos.post("/",isAdmin, async (req, res) => {
+    const producto = {
+        title: req.body.title,
+        description: req.body.description,
+        code: req.body.code,
+        thumbnail: req.body.thumbnail,
+        price: req.body.price,
+        stock: req.body.stock
+    };
+    const productoSaved = await ProductDao.save(producto);
+    res.send(productoSaved);
 })
-routerProductos.put("/:id", async (req, res) => {
+routerProductos.put("/:id",isAdmin, async (req, res) => {
     let id = req.params.id
     if(administrador){
         let productoEditado = req.body;

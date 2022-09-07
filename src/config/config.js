@@ -1,8 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-const DEV_PORT = 8080;
-
 const config = {
     persistences: "mongo",
     MONGO_DB: {
@@ -19,4 +14,4 @@ const config = {
     },
 };
 
-export { config };
+export default config ;
