@@ -1,9 +1,8 @@
 import dotenv from 'dotenv'
-import minimist from 'minimist'
+
 
 dotenv.config()
 
-const args = minimist(process.argv.slice(2),{alias:{p:"PORT"},default:{p:8080}});
 
 
 const config = {
@@ -13,7 +12,7 @@ const config = {
         DB_NAME: "ecommerce",
     },
     server: {
-        PORT: args.PORT,
+        PORT: process.env.PORT || 8080,
         routes: { 
             base: "/api",
             products: "/api/productos",
