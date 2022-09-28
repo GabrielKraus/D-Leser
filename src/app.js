@@ -1,8 +1,17 @@
-const express = require('express');
-const { fork } = require('child_process');
+import express from 'express';
+import os from 'os';
 
 
 const app = express();
+const PORT = process.env.PORT;
+
+app.listen(PORT,()=>console.log(`Listening on PORT ${PORT}`))
+
+
+
+app.get('/',(req,res)=>{
+    res.send("info");
+})
 
 app.get('/info',(req,res)=>{
     let info = {
@@ -12,7 +21,8 @@ app.get('/info',(req,res)=>{
         memUse: process.memoryUsage().rss,
         execPath: process.execPath,
         id: process.id,
-        dirPath: process.cwd()
+        dirPath: process.cwd(),
+        threadQnt: os.cpus().length
     }
     res.send(info);
 })
@@ -30,4 +40,3 @@ app.get('/api/randoms', (req, res) => {
 
 
 
-const server = app.listen(8080,()=>console.log(`Listening on port 8080`))
