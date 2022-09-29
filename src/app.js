@@ -1,6 +1,7 @@
 import express from 'express';
 import os from 'os';
-
+import __dirname from './utils.js';
+import {fork} from 'child_process';
 
 const app = express();
 const PORT = process.env.PORT;
@@ -8,10 +9,7 @@ const PORT = process.env.PORT;
 app.listen(PORT,()=>console.log(`Listening on PORT ${PORT}`))
 
 
-
-app.get('/',(req,res)=>{
-    res.send("info");
-})
+app.use(express.static(__dirname+'/public'))
 
 app.get('/info',(req,res)=>{
     let info = {
@@ -22,7 +20,8 @@ app.get('/info',(req,res)=>{
         execPath: process.execPath,
         id: process.id,
         dirPath: process.cwd(),
-        threadQnt: os.cpus().length
+        threadQnt: os.cpus().length,
+        serverInfo: `Servidor con pid ${process.pid} atendiendo petición nuevamente en puerto ${PORT}`
     }
     res.send(info);
 })
