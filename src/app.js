@@ -2,7 +2,7 @@ import express from 'express';
 import os from 'os';
 import __dirname from './utils.js';
 import {fork} from 'child_process';
-
+import compression from 'compression';
 const app = express();
 const PORT = process.env.PORT;
 
@@ -10,7 +10,7 @@ app.listen(PORT,()=>console.log(`Listening on PORT ${PORT}`))
 
 
 app.use(express.static(__dirname+'/public'))
-
+app.use(compression())
 app.get('/info',(req,res)=>{
     let info = {
         inputArgs: process.argv.slice(2),
