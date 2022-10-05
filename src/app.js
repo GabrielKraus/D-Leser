@@ -1,31 +1,30 @@
 import express from 'express';
 import os from 'os';
 import __dirname from './utils.js';
-import {fork} from 'child_process';
 import compression from 'compression';
 import winston from 'winston';
 const app = express();
 const logger = winston.createLogger({
     level: 'info',
-    transports:[
-        new winston.transports.Console({level:'info'}),
-        new winston.transports.File({level: 'warn', filename:'./warn.log'}),
-        new winston.transports.File({level: 'error', filename:'./error.log'})
+    transports: [
+        new winston.transports.Console({ level: 'info' }),
+        new winston.transports.File({ level: 'warn', filename: './warn.log' }),
+        new winston.transports.File({ level: 'error', filename: './error.log' })
     ]
 })
 const PORT = process.env.PORT;
 
-app.listen(PORT,()=>console.log(`Listening on PORT ${PORT}`))
+app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`))
 
 
 
-app.get('/', (req, res)=>{
-    res.sendFile(__dirname+'/public')
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public')
 })
 
-app.use(express.static(__dirname+'/public'))
+app.use(express.static(__dirname + '/public'))
 app.use(compression())
-app.get('/info',(req,res)=>{
+app.get('/info', (req, res) => {
     let info = {
         inputArgs: process.argv.slice(2),
         os: process.platform,
@@ -39,22 +38,26 @@ app.get('/info',(req,res)=>{
     }
     res.send(info);
 })
-app.get('/api/randoms', (req, res) => {
-	const randomForked = fork(__dirname+'/random.js');
-	let { cantidad } = req.query;
-	let obj = {};
-    if (isNaN(cantidad)) {
-        logger.log('error', `${cantidad} no es un numero`)
-        randomForked.send({ cantidad: 500000000, obj });
-    } else {
-        if(cantidad){
-            randomForked.send({ cantidad, obj })
-        }else{
-            randomForked.send({ cantidad: 500000000, obj });
-        }
+app.get('/api/primo/:numero', (req, res) => {
+    let num=req.params.numero
+
+    function isPrime(n) {
+        if (n<=1) return false;
+        for (var i = 2; i <= n-1; i++)
+            if (n % i == 0) return false;
+        return true;
     }
-	randomForked.on('message', msg => res.send(msg));
+
+    if (isNaN(num)) {
+        logger.log('error', `${num} no es un numero`)
+        res.send(`${num} no es un numero`)
+    }else{
+        isPrime(num) ? res.send(`${num} es un numero primo`) : res.send(`${num} no es un numero primo`)
+
+    }
+
+    
+
+    
 });
-
-
 
