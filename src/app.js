@@ -3,6 +3,7 @@ import os from 'os';
 import __dirname from './utils.js';
 import compression from 'compression';
 import winston from 'winston';
+import crypto from 'crypto'
 const app = express();
 const logger = winston.createLogger({
     level: 'info',
