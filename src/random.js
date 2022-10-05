@@ -2,7 +2,7 @@
 
 const randomNum = (cantidad, obj) => {
 	for (let i = 0; i < cantidad; i++) {
-		const random = Math.floor(Math.random() * 1000);
+		const random = Math.floor(Math.random() * 100);
 		if (obj[random]) {
 			obj[random]++;
 			continue;
