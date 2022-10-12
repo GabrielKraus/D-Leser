@@ -16,6 +16,7 @@ import initializePassport from './config/passport.config.js';
 const app = express();
 
 
+
 const connection = mongoose.connect(config.MONGO_DB.URL,{
     dbName: config.MONGO_DB.DB_NAME
 })
