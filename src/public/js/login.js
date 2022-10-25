@@ -12,6 +12,4 @@ form.addEventListener('submit',evt=>{
             "Content-Type":"application/json"
         }
     }).then(result=>result.json()).then(json=>console.log(json));
-
-    location.href = "http://localhost:8080/";
 })
