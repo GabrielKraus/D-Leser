@@ -12,7 +12,7 @@ const config = {
         DB_NAME: "ecommerce",
     },
     server: {
-        PORT: process.env.PORT || 8080,
+        PORT: process.env.PORT || 5000,
         routes: { 
             base: "/api",
             products: "/api/productos",
