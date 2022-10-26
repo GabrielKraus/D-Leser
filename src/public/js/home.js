@@ -1,4 +1,3 @@
-import config from "../../config/config.js";
 const btn = document.getElementById('logoutbtn')
 
 btn.addEventListener('click',evt=>{
