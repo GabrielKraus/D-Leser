@@ -6,7 +6,10 @@ const schema = mongoose.Schema({
     apellido:String,
     email:String,
     password:String,
-    edad:Number
+    edad:Number,
+    direccion: String,
+    telefono:Number,
+    foto:String
 }, {timestamps:true})
 
 
