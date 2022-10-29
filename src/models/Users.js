@@ -9,7 +9,8 @@ const schema = mongoose.Schema({
     edad:Number,
     direccion: String,
     telefono:Number,
-    foto:String
+    foto:String,
+    carrito:[{type: mongoose.Schema.Types.ObjectId, ref: 'carritos'}]
 }, {timestamps:true})
 
 

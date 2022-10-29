@@ -10,8 +10,8 @@ const initializePassport = () => {
     passport.use('register', new LocalStrategy({ passReqToCallback: true, usernameField: 'email' }, async (req, email, password, done) => {
 
         try {
-            const { nombre, apellido, edad,direccion, telefono,foto } = req.body;
-            if (!nombre || !apellido || !email || !password || !edad || !direccion || !telefono || !foto) {
+            const { nombre, apellido, edad,direccion, telefono,foto, carrito } = req.body;
+            if (!nombre || !apellido || !email || !password || !edad || !direccion || !telefono || !foto || !carrito) {
                 return done(null, false)
             }
 
@@ -28,7 +28,8 @@ const initializePassport = () => {
                 password: createHash(password),
                 direccion,
                 telefono,
-                foto
+                foto,
+                carrito
             }
             const result = await userService.create(user);
 
