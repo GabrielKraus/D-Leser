@@ -1,0 +1,16 @@
+<a  disabled href="/api/usuario/login">
+    Log in ||
+</a>
+
+{{#if status}}
+    <a  href="/api/usuario/logout">
+{{else}}
+    <a  disabled href="/api/usuario/logout">
+{{/if}}
+
+    Log out ||
+</a>
+
+<a  href="/api/usuario/signup">
+    Sign Up
+</a>
