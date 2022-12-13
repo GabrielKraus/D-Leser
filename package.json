@@ -1,12 +1,12 @@
 {
-  "name": "ProyectoFinalGabrielIgnacio",
+  "name": "D-Leser",
   "version": "1.0.0",
   "description": "ProyectoFinalGabrielIgnacio",
   "author": "Gabriel Kraus",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "server": "nodemon --inspect ./src/server.js -p 3031",
+    "server": "nodemon --inspect ./src/server.js -p 8081",
     "test": "jest",
     "testReport": "jest --no-color 2>./testresults/TestResults_$(date +%F).txt"
   },
